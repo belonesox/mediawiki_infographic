@@ -1,0 +1,4 @@
+git+https://github.com/belonesox/python-belonesox-tools.git#egg=belonesox_tools
+networkx
+mysql-connector-python
+
