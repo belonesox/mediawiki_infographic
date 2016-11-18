@@ -184,7 +184,7 @@ GROUP BY from_cat, to_cat
                 if int(articles) not in range(3, 50):
                     mod = 'fillcolor=lightpink1'
                 label = '%s /%s' % (node.replace('_', ' '), art)
-                fontsize = int(8 * math.log(3+int(total))) #pylint: disable=E1101
+                fontsize = int(14 * math.log(3+int(total))) #pylint: disable=E1101
                 #fontsize = int(8 * math.sqrt(1+int(total)))
                 line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (node, label, url, fontsize, mod)
                 graphlines.append(line)
