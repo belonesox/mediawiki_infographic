@@ -12,7 +12,7 @@ setup(
         ],
     },
     name='mediawiki_infographic',
-    version='1.00',
+    version='1.01',
     packages=['mediawiki_infographic'],
     author_email = "stanislav.fomin@gmail.com",
 
