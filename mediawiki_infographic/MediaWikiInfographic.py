@@ -5,17 +5,13 @@ Generate different SVG infographics from MediaWiki DB.
 '''
 import os
 import sys
-import random
-import re
 import MySQLdb
-import time
 import math
 import networkx as nx
-import subprocess
 import argparse
 import tempfile 
 import belonesox_tools.MiscUtils  as ut
-
+import errno
 
 EXCLUDED_CATS = [u'Темы']
 
@@ -118,7 +114,7 @@ class MediaWikiInfographic(object):
         parser_init.add_argument('--hyperlinkprefix', help='Like http://0x1.tv/Category:', nargs='?')
         parser_init.add_argument('outputsvg', help='Output SVG file')
         self.args = parser.parse_args()
-        self.conn = MySQLdb.connect(host='127.0.0.1',
+        self.conn = MySQLdb.connect(host='localhost',
                                     port=3306,
                                     user=self.args.user, 
                                     passwd=self.args.password,
@@ -136,8 +132,6 @@ class MediaWikiInfographic(object):
                                +  ', '.join(['"' + cat + '"' for cat in self.args.excludecats.split(';')])
                                 + ' ) ')
         excluded_cats = ut.unicodeanyway(excluded_cats)    
-
-        # "Докладчики", "NeedContacts", "Страницы_с_неработающими_файловыми_ссылками", "Конференции", "Скрытые_категории", "Доклады_на_иностранных_языках"
 
         curs = self.conn.cursor()
         curs.execute(u"""
@@ -198,7 +192,7 @@ GROUP BY from_cat, to_cat
         text = u'''digraph G{
             rankdir = LR;
             ransksep =1;
-            node [fontname="Calibri" shape=box style=filled fillcolor=white];
+            node [fontname="Calibri" shape=box style=filled fillcolor=white target="_blank"];
             edge [penwidth=2 color="blue:yellow" style=dashed]
 
         %s    
@@ -215,6 +209,7 @@ GROUP BY from_cat, to_cat
             file_.write(text.encode('utf-8'))
             
         scmd = 'dot -Tsvg "%(tempdotname)s" > "%(tempsvgname)s"' % vars()   
+        print scmd    
         os.system(scmd)
     
         svg_text = open(tempsvgname, 'r').read()
