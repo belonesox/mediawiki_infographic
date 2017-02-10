@@ -112,6 +112,7 @@ class MediaWikiInfographic(object):
         parser_init = subparsers.add_parser('categorygraph', help='generate SVG graph for categories', aliases=['c'])
         parser_init.add_argument('--excludecats', help='Excluded categories', nargs='?')
         parser_init.add_argument('--hyperlinkprefix', help='Like http://0x1.tv/Category:', nargs='?')
+        parser_init.add_argument('--background', help='Path to background SVG', nargs='?')
         parser_init.add_argument('outputsvg', help='Output SVG file')
         self.args = parser.parse_args()
         self.conn = MySQLdb.connect(host='localhost',
@@ -214,6 +215,11 @@ GROUP BY from_cat, to_cat
     
         import pkg_resources
         svgpattern = pkg_resources.resource_string('mediawiki_infographic', 'template/pattern.svg')
+        if self.args.background:
+            if os.path.exists(self.args.background):
+                svgpattern  = open(self.args.background, 'r').read()
+            else:
+                print "Path '%s' does not exists!" % self.args.background
 
         svg_text = open(tempsvgname, 'r').read()
         svg_text = svg_text.replace('<g id="graph0"', '''
