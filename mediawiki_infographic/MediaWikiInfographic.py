@@ -115,7 +115,7 @@ class MediaWikiInfographic(object):
         parser_init.add_argument('--background', help='Path to background SVG', nargs='?')
         parser_init.add_argument('outputsvg', help='Output SVG file')
         self.args = parser.parse_args()
-        self.conn = MySQLdb.connect(host='localhost',
+        self.conn = MySQLdb.connect(host='127.0.0.1',
                                     port=3306,
                                     user=self.args.user, 
                                     passwd=self.args.password,
@@ -135,7 +135,7 @@ class MediaWikiInfographic(object):
         excluded_cats = ut.unicodeanyway(excluded_cats)    
 
         curs = self.conn.cursor()
-        curs.execute(u"""
+        sql = u"""
 select
     CAST(
         page_title AS CHAR(200)
@@ -151,7 +151,8 @@ where
     and cl2.cl_from = page_id
     and page_namespace = 14
 GROUP BY from_cat, to_cat
-        """ % vars())
+        """ % vars()
+        curs.execute(sql)
 
         graphlines = []
         rows = curs.fetchall()
@@ -163,6 +164,19 @@ GROUP BY from_cat, to_cat
         for row in rows:
             G.node[row[0]]['articles'] = G.node[row[0]]['totalarticles'] = row[2]
             G.add_edge(row[0], row[1])
+
+        cycles = nx.simple_cycles(G)
+        cycles_found = False
+        if cycles:
+            for cycle in cycles:
+                for node in cycle:
+                    print node.encode('utf-8'), '->'
+                print
+                cycles_found  = True
+
+        if cycles_found:
+            sys.exit(1)
+            print "Found cycles"
 
         for node in nx.topological_sort(G):
             for sc_ in G.predecessors(node):
