@@ -1,2 +1,1 @@
-# seminar-recorder
-Record stream from HDV, DV cam and MJPEG webcam
+* Generate SVG-graph with categories for MediaWiki

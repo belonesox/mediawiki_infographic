@@ -137,8 +137,6 @@ class MediaWikiInfographic(object):
                                 + ' ) ')
         excluded_cats = ut.unicodeanyway(excluded_cats)    
 
-        # "Докладчики", "NeedContacts", "Страницы_с_неработающими_файловыми_ссылками", "Конференции", "Скрытые_категории", "Доклады_на_иностранных_языках"
-
         curs = self.conn.cursor()
         curs.execute(u"""
 select
@@ -214,7 +212,7 @@ GROUP BY from_cat, to_cat
         with open(tempdotname, 'w') as file_:
             file_.write(text.encode('utf-8'))
             
-        scmd = 'dot -Tsvg "%(tempdotname)s" > "%(tempsvgname)s"' % vars()   
+        scmd = 'dot -Tsvg "%(tempdotname)s" > "%(tempsvgname)s"' % vars()
         os.system(scmd)
     
         svg_text = open(tempsvgname, 'r').read()
