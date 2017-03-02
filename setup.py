@@ -12,9 +12,10 @@ setup(
         ],
     },
     name='mediawiki_infographic',
-    version='1.00',
+    version='1.01',
     packages=['mediawiki_infographic'],
+    package_dir={'mediawiki_infographic': 'mediawiki_infographic'},
+    package_data={'mediawiki_infographic': ['template/*.*']},
     author_email = "stanislav.fomin@gmail.com",
-
 )
 
