@@ -185,24 +185,28 @@ GROUP BY from_cat, to_cat
 
         # nodes = set([row[0] for row in rows] + [row[1] for row in rows])
         for node in G.nodes():
-            if node  not in EXCLUDED_CATS:
-                _suffix = unicode(node) #urllib.urlencode(
-                url = unicode(self.args.hyperlinkprefix) + _suffix 
+            unode = ut.unicodeanyway(node)
+            print unode
+            if unode  not in EXCLUDED_CATS:
+                 #urllib.urlencode(
+                url = unicode(self.args.hyperlinkprefix) + unode
                 art = G.node[node]['articles']
                 total = G.node[node]['totalarticles']
                 articles = G.node[node]['articles']
                 mod = ''
                 if int(articles) not in range(3, 50):
                     mod = 'fillcolor=lightpink1'
-                label = u'%s /%s' % (node.replace('_', ' '), art)
+                label = u'%s /%s' % (unode.replace('_', ' '), art)
                 fontsize = int(14 * math.log(3+int(total))) #pylint: disable=E1101
                 #fontsize = int(8 * math.sqrt(1+int(total)))
-                line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (node, label, url, fontsize, mod)
+                line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (unode, label, url, fontsize, mod)
                 graphlines.append(line)
 
         for edge in G.edges():
-            if edge[0] not in EXCLUDED_CATS and edge[1] not in EXCLUDED_CATS:
-                line = u'"%s" -> "%s"' % (edge[1], edge[0])
+            n1 = ut.unicodeanyway(edge[1])
+            n0 = ut.unicodeanyway(edge[0])
+            if n1 not in EXCLUDED_CATS and n0 not in EXCLUDED_CATS:
+                line = u'"%s" -> "%s"' % (n1, n0)
                 graphlines.append(line)
                 
 
