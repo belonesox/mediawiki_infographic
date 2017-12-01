@@ -13,6 +13,7 @@ import tempfile
 import belonesox_tools.MiscUtils  as ut
 import errno
 import urllib
+import re
 
 EXCLUDED_CATS = [u'Темы']
 
@@ -186,7 +187,6 @@ GROUP BY from_cat, to_cat
         # nodes = set([row[0] for row in rows] + [row[1] for row in rows])
         for node in G.nodes():
             unode = ut.unicodeanyway(node)
-            print unode
             if unode  not in EXCLUDED_CATS:
                  #urllib.urlencode(
                 url = unicode(self.args.hyperlinkprefix) + unode
@@ -242,6 +242,7 @@ GROUP BY from_cat, to_cat
                 print "Path '%s' does not exists!" % self.args.background
 
         svg_text = open(tempsvgname, 'r').read()
+        svg_text = re.sub(r'<svg\s+width="\d+pt"\s+height="\d+pt"', '<svg width="1200pt" height="2000pt"', svg_text)
         svg_text = svg_text.replace('<g id="graph0"', '''
 <defs>
   <pattern id="img1" patternUnits="userSpaceOnUse" width="256" height="256">
