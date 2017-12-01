@@ -12,6 +12,7 @@ import argparse
 import tempfile 
 import belonesox_tools.MiscUtils  as ut
 import errno
+import urllib
 
 EXCLUDED_CATS = [u'Темы']
 
@@ -185,14 +186,15 @@ GROUP BY from_cat, to_cat
         # nodes = set([row[0] for row in rows] + [row[1] for row in rows])
         for node in G.nodes():
             if node  not in EXCLUDED_CATS:
-                url = self.args.hyperlinkprefix + "%s" % node
+                _suffix = unicode(node) #urllib.urlencode(
+                url = unicode(self.args.hyperlinkprefix) + _suffix 
                 art = G.node[node]['articles']
                 total = G.node[node]['totalarticles']
                 articles = G.node[node]['articles']
                 mod = ''
                 if int(articles) not in range(3, 50):
                     mod = 'fillcolor=lightpink1'
-                label = '%s /%s' % (node.replace('_', ' '), art)
+                label = u'%s /%s' % (node.replace('_', ' '), art)
                 fontsize = int(14 * math.log(3+int(total))) #pylint: disable=E1101
                 #fontsize = int(8 * math.sqrt(1+int(total)))
                 line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (node, label, url, fontsize, mod)
