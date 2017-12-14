@@ -13,14 +13,14 @@ setup(
         ],
     },
     name='mediawiki_infographic',
-    version='1.02',
+    version='1.03',
     packages=['mediawiki_infographic'],
     package_dir={'mediawiki_infographic': 'mediawiki_infographic'},
     package_data={'mediawiki_infographic': ['template/*.*']},
     author_email="stanislav.fomin@gmail.com",
     install_requires=[
         'networkx',
-        'mysql-connector-python',
+#        'mysql-connector-python',
     ],
     dependency_links=[
         'git+https://github.com/belonesox/python-belonesox-tools.git#egg=belonesox_tools'
