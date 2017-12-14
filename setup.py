@@ -21,6 +21,7 @@ setup(
     install_requires=[
         'networkx',
         'trans',
+        'yaml',
         'pytz',
         'mysql-connector-python',
     ],
