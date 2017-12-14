@@ -13,7 +13,7 @@ setup(
         ],
     },
     name='mediawiki_infographic',
-    version='1.03',
+    version='1.04',
     packages=['mediawiki_infographic'],
     package_dir={'mediawiki_infographic': 'mediawiki_infographic'},
     package_data={'mediawiki_infographic': ['template/*.*']},

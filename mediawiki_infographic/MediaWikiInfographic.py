@@ -130,12 +130,21 @@ class MediaWikiInfographic(object):
     def themes_graph(self):
         '''
         '''
-        excluded_cats = ''
+        excluded_cats_sql = u''
         if self.args.excludecats:
-            excluded_cats  = ('cl2.cl_to NOT IN (' 
-                               +  ', '.join(['"' + cat + '"' for cat in self.args.excludecats.split(';')])
-                                + ' ) ')
-        excluded_cats = ut.unicodeanyway(excluded_cats)    
+            excludecat_list = ut.unicodeanyway(self.args.excludecats).split(u';')
+            terms = []
+            for cat in excludecat_list:
+                if cat:
+                    term = u"cl2.cl_to NOT LIKE '%s'" % cat 
+                    terms.append(term)     
+            # excluded_cats_sql  = ('cl2.cl_to NOT IN (' 
+            #                    +  ', '.join(['"' + cat + '"' for cat in self.args.excludecats.split(';')])
+            #                     + ' ) ')
+            if terms:
+                excluded_cats_sql = u'(' + u' AND '.join(terms) + u')'
+
+        # excluded_cats = ut.unicodeanyway(excluded_cats)    
 
         curs = self.conn.cursor()
         sql = u"""
@@ -150,7 +159,7 @@ from
     page
 LEFT JOIN categorylinks cl1 ON cl1.cl_to = page_title
 where
-    %(excluded_cats)s
+    %(excluded_cats_sql)s
     and cl2.cl_from = page_id
     and page_namespace = 14
 GROUP BY from_cat, to_cat
@@ -182,43 +191,60 @@ GROUP BY from_cat, to_cat
         cycles = nx.simple_cycles(G)
         cycles_found = False
         if cycles:
+            print "Found cycles:"
             for cycle in cycles:
-                for node in cycle:
-                    print node.encode('utf-8'), '->'
+                if len(cycle) == 1:
+                    G.remove_edge(cycle[0], cycle[0])
+                    print "Self-loop: ", cycle[0]
+                else:    
+                    for node in cycle:
+                        print node.encode('utf-8'), '->',
+                    G.remove_edge(cycle[-1], cycle[0])
                 print
-                cycles_found  = True
+                # cycles_found  = True
 
         if cycles_found:
-            sys.exit(1)
             print "Found cycles"
+            sys.exit(1)
+
+        # G = nx.minimum_spanning_tree(G)
 
         for node in nx.topological_sort(G):
+            # print "Filling node %s" % node
             for sc_ in G.predecessors(node):
+                # print "  From node %s" % sc_
                 G.node[node]['totalarticles'] += G.node[sc_]['totalarticles']
-
+            # print " => ", G.node[node]['totalarticles']
+            
         # nodes = set([row[0] for row in rows] + [row[1] for row in rows])
+
+        def get_safe_unode(node):
+            unode = ut.unicodeanyway(node)
+            safe_unode = unode.replace('_', ' ').replace('"',r'\"')
+            return safe_unode 
+
         for node in G.nodes():
             unode = ut.unicodeanyway(node)
             if unode  not in EXCLUDED_CATS:
-                 #urllib.urlencode(
-                url = unicode(self.args.hyperlinkprefix) + unode
+                url = unicode(self.args.hyperlinkprefix) + urllib.quote(unode.encode('utf-8'))
                 art = G.node[node]['articles']
                 if art == 0:
                     pass
-                total = G.node[node]['totalarticles']
-                articles = G.node[node]['articles']
+                total = int(G.node[node]['totalarticles'])
+                articles = int(G.node[node]['articles'])
                 mod = ''
-                if int(art) not in range(3, 50):
+                if int(articles) not in range(3, 50):
                     mod = 'fillcolor=lightpink1'
-                label = u'%s /%s' % (unode.replace('_', ' '), art)
+                safe_unode = get_safe_unode(unode)
+                label = u'%s / %d' % (safe_unode, total)
                 fontsize = int(14 * math.log(3+int(total))) #pylint: disable=E1101
                 #fontsize = int(8 * math.sqrt(1+int(total)))
-                line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (unode, label, url, fontsize, mod)
+                line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (safe_unode, label, url, fontsize, mod)
                 graphlines.append(line)
 
         for edge in G.edges():
-            n1 = ut.unicodeanyway(edge[1])
-            n0 = ut.unicodeanyway(edge[0])
+            n1 = get_safe_unode(edge[1])
+            n0 = get_safe_unode(edge[0])
             if n1 not in EXCLUDED_CATS and n0 not in EXCLUDED_CATS:
                 line = u'"%s" -> "%s"' % (n1, n0)
                 graphlines.append(line)
