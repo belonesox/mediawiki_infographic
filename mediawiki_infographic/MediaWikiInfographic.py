@@ -16,6 +16,7 @@ import urllib
 import re
 
 EXCLUDED_CATS = [u'Темы']
+# EXCLUDED_CATS = []
 
 #pylint: disable=W0107, R0201
  
@@ -160,12 +161,23 @@ GROUP BY from_cat, to_cat
         rows = curs.fetchall()
 
         G = nx.DiGraph()
-        G.add_nodes_from([row[0] for row in rows if row[0]], articles=0, totalarticles=0)
-        G.add_nodes_from([row[1] for row in rows if row[1]], articles=0, totalarticles=0)
+        
+        excluded_cats_set = set([ut.unicodeanyway(ec) for ec in self.args.excludecats.split(';')] + EXCLUDED_CATS)
+        print "\n".join(sorted(excluded_cats_set)).encode('utf-8')
+        
+        def banned(nd):
+            nd_ = ut.unicodeanyway(nd)
+            return nd_ in excluded_cats_set
+        
+        G.add_nodes_from([ut.unicodeanyway(row[0]) for row in rows if row[0] and not banned(row[0])], articles=0, totalarticles=0)
+        G.add_nodes_from([ut.unicodeanyway(row[1]) for row in rows if row[1] and not banned(row[1])], articles=0, totalarticles=0)
         
         for row in rows:
-            G.node[row[0]]['articles'] = G.node[row[0]]['totalarticles'] = row[2]
-            G.add_edge(row[0], row[1])
+            nd = ut.unicodeanyway(row[0])
+            nd1 = ut.unicodeanyway(row[1])
+            G.node[nd]['articles'] = G.node[nd]['totalarticles'] = row[2]
+            if not banned(nd1):
+                G.add_edge(nd, nd1)
 
         cycles = nx.simple_cycles(G)
         cycles_found = False
@@ -191,10 +203,12 @@ GROUP BY from_cat, to_cat
                  #urllib.urlencode(
                 url = unicode(self.args.hyperlinkprefix) + unode
                 art = G.node[node]['articles']
+                if art == 0:
+                    pass
                 total = G.node[node]['totalarticles']
                 articles = G.node[node]['articles']
                 mod = ''
-                if int(articles) not in range(3, 50):
+                if int(art) not in range(3, 50):
                     mod = 'fillcolor=lightpink1'
                 label = u'%s /%s' % (unode.replace('_', ' '), art)
                 fontsize = int(14 * math.log(3+int(total))) #pylint: disable=E1101

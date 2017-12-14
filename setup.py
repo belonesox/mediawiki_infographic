@@ -5,6 +5,7 @@
 """
 
 from setuptools import setup
+
 setup(
     entry_points={
         'console_scripts': [
@@ -12,10 +13,18 @@ setup(
         ],
     },
     name='mediawiki_infographic',
-    version='1.01',
+    version='1.02',
     packages=['mediawiki_infographic'],
     package_dir={'mediawiki_infographic': 'mediawiki_infographic'},
     package_data={'mediawiki_infographic': ['template/*.*']},
-    author_email = "stanislav.fomin@gmail.com",
+    author_email="stanislav.fomin@gmail.com",
+    install_requires=[
+        'networkx',
+        'trans',
+        'pytz',
+        'mysql-connector-python',
+    ],
+    dependency_links=[
+        'git+https://github.com/belonesox/python-belonesox-tools.git#egg=belonesox_tools'
+    ],    
 )
-
