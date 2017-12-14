@@ -233,7 +233,7 @@ GROUP BY from_cat, to_cat
                 total = int(G.node[node]['totalarticles'])
                 articles = int(G.node[node]['articles'])
                 mod = ''
-                if int(articles) not in range(3, 50):
+                if articles > 50 or total < 3:
                     mod = 'fillcolor=lightpink1'
                 safe_unode = get_safe_unode(unode)
                 label = u'%s / %d' % (safe_unode, total)
