@@ -20,9 +20,6 @@ setup(
     author_email="stanislav.fomin@gmail.com",
     install_requires=[
         'networkx',
-        'trans',
-        'yaml',
-        'pytz',
         'mysql-connector-python',
     ],
     dependency_links=[
