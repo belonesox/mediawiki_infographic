@@ -22,7 +22,7 @@ setup(
         'networkx==2.2',
 #        'mysql-connector-python',
     ],
-    dependency_links=[
-        'git+https://github.com/belonesox/python-belonesox-tools.git#egg=belonesox_tools'
-    ],    
+#    dependency_links=[
+#        'git+https://github.com/belonesox/python-belonesox-tools.git#egg=belonesox_tools'
+#    ],    
 )
