@@ -19,7 +19,7 @@ setup(
     package_data={'mediawiki_infographic': ['template/*.*']},
     author_email="stanislav.fomin@gmail.com",
     install_requires=[
-        'networkx',
+        'networkx==2.2',
 #        'mysql-connector-python',
     ],
     dependency_links=[
