@@ -184,9 +184,10 @@ GROUP BY from_cat, to_cat
         for row in rows:
             nd = ut.unicodeanyway(row[0])
             nd1 = ut.unicodeanyway(row[1])
-            G.node[nd]['articles'] = G.node[nd]['totalarticles'] = row[2]
-            if not banned(nd1):
-                G.add_edge(nd, nd1)
+            if not banned(nd):
+                G.node[nd]['articles'] = G.node[nd]['totalarticles'] = row[2]
+                if not banned(nd1):
+                    G.add_edge(nd, nd1)
 
         cycles = nx.simple_cycles(G)
         cycles_found = False
@@ -236,7 +237,7 @@ GROUP BY from_cat, to_cat
                 if articles > 50 or total < 3:
                     mod = 'fillcolor=lightpink1'
                 safe_unode = get_safe_unode(unode)
-                label = u'%s / %d' % (safe_unode, total)
+                label = u'%s / %d' % (safe_unode, articles)
                 fontsize = int(14 * math.log(3+int(total))) #pylint: disable=E1101
                 #fontsize = int(8 * math.sqrt(1+int(total)))
                 line = u'"%s" [label="%s", URL="%s", fontsize=%d, %s ];' % (safe_unode, label, url, fontsize, mod)
@@ -278,6 +279,7 @@ GROUP BY from_cat, to_cat
         if self.args.background:
             if os.path.exists(self.args.background):
                 svgpattern  = open(self.args.background, 'r').read()
+                svgpattern = svgpattern.replace('<?xml version="1.0" encoding="UTF-8" standalone="no"?>', '')
             else:
                 print "Path '%s' does not exists!" % self.args.background
 
@@ -285,14 +287,17 @@ GROUP BY from_cat, to_cat
         svg_text = re.sub(r'<svg\s+width="\d+pt"\s+height="\d+pt"', '<svg width="1200pt" height="2000pt"', svg_text)
         svg_text = svg_text.replace('<g id="graph0"', '''
 <defs>
-  <pattern id="img1" patternUnits="userSpaceOnUse" width="256" height="256">
+  <pattern id="img1" patternUnits="userSpaceOnUse" width="1593" height="2656">
     %(svgpattern)s
   </pattern>
 </defs>
 <g id="graph0"
 ''' % vars())
-        svg_text = svg_text.replace('''</title>
-<polygon fill="white"''', '''</title>
+# <polygon fill="white"''',
+        for back in ['white', '#ffffff']:
+            svg_text = svg_text.replace('''</title>
+<polygon fill="%s"''' % back,
+'''</title>
 <polygon fill="url(#img1)"''')
         output_dir = os.path.split(self.args.outputsvg)[0]
         if output_dir: 

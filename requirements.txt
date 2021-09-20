@@ -1,5 +1,5 @@
 git+https://github.com/belonesox/python-belonesox-tools.git#egg=belonesox_tools
-networkx
-trans
-mysql-connector-python
+networkx==2.2
+trans==2.1.0
+mysql-connector-python==1.1.6
 
